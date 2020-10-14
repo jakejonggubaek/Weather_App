@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://kit.fontawesome.com/2d323a629b.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .photo {
+            display: flex;
+        }
+
+        .weather_info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: aliceblue;
+            background-color: gray;
+            opacity: .7; 
+        }
+
+        .weather_forecast {
+            display: flex;
+            flex-direction: row;
+            margin-top: 50px;
+        }
+
+        .weather_forecast > div {
+            width: 70px;
+            height: 70px;
+            margin: 10px;
+            background-color: #4B4745;
+            opacity: 0.8;
+            font-size: 10px;
+        }
+
+        .fas {
+            font-size: 50px;
+        }
+
+        .fa-search{
+            font-size: 20px;
+            margin-left: 20px;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+
+    <input type="text">
+    <div class="photo" style="width: auto; height: 700px;">
+        <div class="weather_info" style="width: 700px; height: 500px; margin:30px auto;">
+            <div><span class="city_name" style="font-size: 35px;"></span><span style="width: 10px;"><i class="fas fa-search"></i></span></div>
+            
+            <div class="weather_icon"></div>
+            <div class="weather_description"></div>
+            <br>
+            <div><span>Current Temperature: </span><span class='current_temp'></span></div>
+            <div><span>Feels like: </span><span class='app_temp'></span></div>
+            
+            <div>Sunrise: <span class="sunrise"></span></div>
+            <div>Sunset: <span class="sunset"></span></div>
+            <div>UV index: <span class="uv_index"></span></div>
+            <div>Wind speed: <span class="wind_speed"></span></div>
+            <div>Cloud coverage: <span class="cloud_coverage"></span> %</div>
+
+            <div class="weather_forecast">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+
+        </div>
+    </div>
+
+    <select name="counryCode" id="counryCode">
+        <option value="CA">Canada</option>
+        <option value="US">US</option>
+        <option value="MX">Mexico</option>
+        <option value="KR">Korea</option>
+      </select>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script>
+        let currentTime = new Date();
+
+        let currentHour = currentTime.getHours();
+        if(currentHour > 12) {
+            currentHour = currentTime.getHours()-12;
+        }
+
+        let currentDate = currentTime.getDate();
+        let currentMonth = currentTime.getMonth();
+        let currentDateMonth = currentMonth + '' + currentDate;
+        let weatherCode = '';
+        let sunsetHour = '';
+        let sunriseTimeGMT = '';
+        let sunriseTimeEST= '';
+        let sunsetTimeGMT = '';
+        let sunsetTimeEST = '';
+
+        const weatherApp = {};
+        weatherApp.init = function() {
+            weatherApp.getCurrentWeather();
+            weatherApp.getWeatherForecast();
+            
+        };
+
+        $(function(){
+            weatherApp.init();
+        })
+
+        weatherApp.getWeatherForecast = async () => {
+
+            const cityName = 'toronto';
+            const countryCode = 'CA';
+            const API_KEY = '6555e507cb2a46bda2444864effd5b1f';
+            let weatherCon = '';
+
+            try {
+                const requestResult = await fetch(`https://api.weatherbit.io/v2.0/forecast/daily?city=${cityName}&country=${countryCode}&key=${API_KEY}`);
+                const results = await requestResult.json();
+                console.log("forecastdata", results);
+                console.log("forecastdata weather code", results.data[0].weather.code);
+                console.log("forecastdata max temp", results.data[0].max_temp);
+                console.log("forecastdata min temp", results.data[0].min_temp);
+
+                $('.weather_forecast > div').each(function(index){
+
+                    weatherCon = results.data[index].weather.code.toString();
+                    $(this).append(`${results.data[index].datetime}`);
+
+                    if(weatherCon === "200" || weatherCon === "201" || weatherCon === "202" || weatherCon === "230" || weatherCon === "231" || weatherCon === "232" || weatherCon === "233") {
+                        
+                        $(this).append(`<i class="fas fa-bolt"></i>`);
+                    }else if(weatherCon === "300" || weatherCon === "301" || weatherCon === "302" || weatherCon === "500" || weatherCon === "501" || weatherCon === "502" || weatherCon === "900") {
+                        $(this).append(`<i class="fas fa-cloud-rain"></i>`);
+                    }else if(weatherCon === "610" || weatherCon === "611" || weatherCon === "612") {                
+                        $(this).append(`<i class="fas fa-cloud-showers-heavy"></i>`);
+                    }else if(weatherCon === "621" || weatherCon === "622" || weatherCon === "623") {
+                        $(this).append(`<i class="fas fa-snowflake"></i>`);
+                    }else if(weatherCon === "700" || weatherCon === "711" || weatherCon === "721" || weatherCon === "731" || weatherCon === "741" || weatherCon === "751") {
+                        $(this).append(`<i class="fas fa-smog"></i>`);
+                    }else if(weatherCon === '800' || weatherCon === '801' ) {
+                        console.log('801');
+                        $(this).append(`<i class="fas fa-sun"></i>`); 
+                    }else if(weatherCon === "803" || weatherCon === "804" || weatherCon === '802') {
+                        $(this).append(`<i class="fas fa-cloud"></i>`);
+                    }
+
+                    $(this).append(`Max ${results.data[index].max_temp} °C   Min ${results.data[index].min_temp} °C`);
+                    })
+
+
+            } catch (err) {
+                console.log(err);
+            }
+
+        }
+
+        weatherApp.getCurrentWeather = async () => {
+
+            let cityName = 'toronto';
+            let countryCode = 'CA';
+            const API_KEY = '6555e507cb2a46bda2444864effd5b1f';
+            let localTime = '';
+            
+            
+            let currentDateMonth_num = parseInt(currentDateMonth)
+
+            try {
+                const requestResult = await fetch(`https://api.weatherbit.io/v2.0/current?city=${cityName}&country=${countryCode}&key=${API_KEY}`);
+                const results = await requestResult.json();
+                console.log(results);
+                weatherCode = results.data[0].weather.code;
+                sunriseTimeGMT = results.data[0].sunrise.split(":");
+                sunsetTimeGMT = results.data[0].sunset.split(":");
+
+                //daylight saving time
+                if((0214 < currentDateMonth_num) && (currentDateMonth_num < 1001)) {
+                    sunriseTimeEST = [sunriseTimeGMT[0]-4, sunriseTimeGMT[1]];
+                }else {
+                    sunriseTimeEST = [sunriseTimeGMT[0]-5, sunriseTimeGMT[1]];
+                }
+
+                 //daylight saving time
+                if((0214 < currentDateMonth_num) && (currentDateMonth_num < 1001)) {
+                    sunsetTimeEST = [sunsetTimeGMT[0]-4, sunsetTimeGMT[1]];
+                    if(sunsetTimeEST[0] == -1) {
+                        sunsetTimeEST[0] = 11;
+                    }else if(sunsetTimeEST[0] == -2) {
+                        sunsetTimeEST[0] = 10;
+                    }else if(sunsetTimeEST[0] == -3) {
+                        sunsetTimeEST[0] = 9;
+                    }else if(sunsetTimeEST[0] == -4) {
+                        sunsetTimeEST[0] = 8;
+                    }
+                }else {
+                    sunsetTimeEST = [sunsetTimeGMT[0]-5, sunsetTimeGMT[1]];
+                    if(sunsetTimeEST[0] == -1) {
+                        sunsetTimeEST[0] = 11;
+                    }else if(sunsetTimeEST[0] == -2) {
+                        sunsetTimeEST[0] = 10;
+                    }else if(sunsetTimeEST[0] == -3) {
+                        sunsetTimeEST[0] = 9;
+                    }else if(sunsetTimeEST[0] == -4) {
+                        sunsetTimeEST[0] = 8;
+                    }
+                }
+
+                sunsetHour = sunsetTimeEST[0]-12;
+
+                $('.city_name').text(results.data[0].city_name);
+                $('.weather_description').text(results.data[0].weather.description);
+                $('.current_temp').text(results.data[0].temp+' °C');
+                $('.app_temp').text(results.data[0].app_temp+' °C');
+                $('.sunrise').text(`${sunriseTimeEST[0]}:${sunriseTimeEST[1]} AM`);
+                $('.sunset').text(`${sunsetTimeEST[0]-12}:${sunsetTimeEST[1]} PM`);
+                $('.uv_index').text((results.data[0].uv).toFixed(1));
+                $('.wind_speed').text(`${results.data[0].wind_spd} m/s`);
+                $('.cloud_coverage').text(results.data[0].clouds);
+
+            } catch (err) {
+                console.log(err);
+            }
+
+            weatherApp.getPhotoByWeather();
+
+        }
+
+        let number = (Math.floor((Math.random() * 7) + 1));
+
+        weatherApp.getPhotoByWeather = function() {
+            const api_key = "563492ad6f91700001000001b328e07c43694cc1a0483e1333d8106f"
+            let condition = ""
+            let weatherCon = weatherCode.toString();
+
+            // 200, 201, 202, 230, 231, 232, 233 = storm
+            // 300, 301, 302, 500, 501, 502, 900 = rain
+            // 610, 611, 612 = sleet, frost
+            // 621, 622, 623 = snow
+            // 700, 711, 721, 731, 741, 751 = haze, fog, smog
+            // 800, 801 = sunny
+            // 802  = half cloud
+            // 803, 804 = cloudy
+            if(weatherCon === "200" || weatherCon === "201" || weatherCon === "202" || weatherCon === "230" || weatherCon === "231" || weatherCon === "232" || weatherCon === "233") {
+                condition = "storm"
+                $('.weather_icon').append(`<i class="fas fa-bolt"></i>`);
+            }else if(weatherCon === "300" || weatherCon === "301" || weatherCon === "302" || weatherCon === "500" || weatherCon === "501" || weatherCon === "502" || weatherCon === "900") {
+                condition = "rain"
+                $('.weather_icon').append(`<i class="fas fa-cloud-rain"></i>`);
+            }else if(weatherCon === "610" || weatherCon === "611" || weatherCon === "612") {
+                condition = "frost"
+                $('.weather_icon').append(`<i class="fas fa-cloud-showers-heavy"></i>`);
+            }else if(weatherCon === "621" || weatherCon === "622" || weatherCon === "623") {
+                condition = "snow"
+                $('.weather_icon').append(`<i class="fas fa-snowflake"></i>`);
+            }else if(weatherCon === "700" || weatherCon === "711" || weatherCon === "721" || weatherCon === "731" || weatherCon === "741" || weatherCon === "751") {
+                condition = "fog"
+                $('.weather_icon').append(`<i class="fas fa-smog"></i>`);
+            }else if(weatherCon === '800' || weatherCon === '801' ) {
+                condition = "sunny"
+                
+                if(currentTime.getHours() > sunsetTimeEST[0]) {
+                    $('.weather_icon').append(`<i class="fas fa-moon"></i>`);  
+                }else {
+                    $('.weather_icon').append(`<i class="fas fa-sun"></i>`);  
+                }
+                
+            }else if(weatherCon === "803" || weatherCon === "804" || weatherCon === '802') {
+                condition = "cloud"
+                $('.weather_icon').append(`<i class="fas fa-cloud"></i>`);
+            }
+            
+            if(currentTime.getHours() > sunsetTimeEST[0]) {
+                condition = condition + " night";  
+            }
+            console.log('curr', currentTime.getHours())
+            console.log('sunset', sunsetTimeEST[0])
+
+            $.ajax({
+                method: "GET",
+                beforeSend: function(xhr){
+                    xhr.setRequestHeader("Authorization", api_key)
+                },
+                url: `https://api.pexels.com/v1/search?query=${condition}&per_page=10&page=1`,                
+                dataType: 'json'
+
+            }).then((result) => {
+            $(".photo").css("background-image", `url(${result.photos[number].src.landscape})`);
+            $(".photo").css("background-size", "cover");
+            });
+        }
+
+        
+
+    </script>
+</body>
+</html>

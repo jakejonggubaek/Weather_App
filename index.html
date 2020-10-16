@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Weather in Canada</title>
     <script src="https://kit.fontawesome.com/2d323a629b.js" crossorigin="anonymous"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 
@@ -15,6 +15,10 @@
         .photo {
             display: flex;
         }
+
+        .city_name {
+                font-size: 35px;
+            }
 
         .city {
             display: flex;
@@ -28,6 +32,9 @@
             color: aliceblue;
             background-color: gray;
             opacity: .7; 
+            width: 700px;
+            height: 500px;
+            margin:30px auto;
         }
 
         .weather_icon {
@@ -76,13 +83,62 @@
             outline:none;
         }
 
+        @media screen and (max-width: 750px){
+
+            span, div {
+                font-size: 14;
+            }
+
+            .city_name {
+                font-size: 24px;
+            }
+
+            .weather_info {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                color: aliceblue;
+                background-color: gray;
+                opacity: .7; 
+                width: 400px;
+                height: 600px;
+                margin:30px auto;
+            }
+
+            .weather_forecast {
+                display: flex;
+                flex-direction: column;
+                margin-top: 10px;
+            }
+
+            .weather_forecast > div {
+                width: 150px;
+                height: 40px;
+                margin: 3px;
+                background-color: #4B4745;
+                opacity: 0.8;
+                font-size: 12px;
+                text-align: center;
+            
+            }
+
+            .fas {
+            font-size: 20px;
+            margin-left: 5px;
+            margin-top: 3px;
+            }
+        }
+
+
+
     </style>
 </head>
 <body>
 
     <div class="photo" style="width: auto; height: 700px;">
-        <div class="weather_info" style="width: 700px; height: 500px; margin:30px auto;">
-            <div class="city"><div class="city_name" style="font-size: 35px;"></div><div class="city_search" style="width: 10px;"><i class="fas fa-bars"></i></div></div>
+        <div class="weather_info" >
+            <div class="city"><div class="city_name"></div><div class="city_search" style="width: 10px;"><i class="fas fa-bars"></i></div></div>
             
             <div class="weather_icon"></div>
             <div class="weather_description"></div>
@@ -192,7 +248,7 @@
                         $(this).append(`<i class="fas fa-cloud"></i>`);
                     }
 
-                    $(this).append(`<br> Max ${results.data[index].max_temp} °C   Min ${results.data[index].min_temp} °C`);
+                    $(this).append(`<br> Max ${results.data[index].max_temp} °C  &nbsp; Min ${results.data[index].min_temp} °C`);
                     })
 
 
@@ -225,12 +281,12 @@
                 let timezone = results.data[0].timezone;
                 let time_difference = 0;
 
-                if(timezone === "America/Vancouver") {
+                if(timezone === "America/Vancouver" || timezone === "America/Whitehorse") {
                     console.log(timezone);
                     time_difference = -3;
-                }else if(timezone === "America/Edmonton") {
+                }else if(timezone === "America/Edmonton" || timezone === "America/Yellowknife") {
                     time_difference = -2;
-                }else if(timezone === "America/Winnipeg") {
+                }else if(timezone === "America/Winnipeg" || timezone === "America/Rankin_Inlet") {
                     time_difference = -1;
                 }else if(timezone === "America/Montreal") {
                     time_difference = 0;
